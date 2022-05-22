@@ -20,3 +20,18 @@ class RecipeURLsTest(TestCase):
     def test_recipe_detail_url_is_ok(self):
         url = reverse('recipes:recipe', kwargs={'id':3})
         self.assertEqual(url, '/recipes/3/')
+
+    def test_search_url_is_correct(self):
+        url = reverse('recipes:search')
+        self.assertEqual(url, '/recipes/search/')
+
+    def test_recipe_search_uses_correct_view_function(self):
+        url = reverse('recipes:search')
+        resolved = resolve(url)
+        self.assertIs(resolved.func, views.search)
+
+ 
+
+
+
+
