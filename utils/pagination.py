@@ -50,5 +50,4 @@ def make_pagination(request, queryset, per_page, qty_pages=4):
         qty_pages,
         current_page
     )
-
     return page_obj, pagination_range
