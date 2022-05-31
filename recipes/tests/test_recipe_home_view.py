@@ -69,5 +69,15 @@ class RecipeHomeViewTest(RecipeTestBase):
             self.assertEqual(len(paginator.get_page(2)),3)
             self.assertEqual(len(paginator.get_page(3)),2)
 
-    
+
+    #NA RESPONSE, ESTAMOS PASSANDO UM NÚMERO DE PÁGINA INVÁLIDO E VENDO SE O SISTEMA RETORNA A
+    #CURRENT PAGE = 1
+    def test_invalid_page_query_uses_page_one(self):
+        for i in range(8):
+            kwargs = {'slug': f'r{i}','author_data':{'username': f'u{i}'}}
+            self.make_recipe(**kwargs)
+
+        with patch('recipes.views.PER_PAGE', new=3):
+            response = self.client.get(reverse('recipes:home')+ '?page=!BV!')
+            self.assertEqual(response.context['recipes'].number,1)
     
