@@ -16,7 +16,7 @@ def add_placeholder(field, placeholder_val):
 def strong_password(password):
     #ISTO É UMA EXPRESSÃO REGULAR E GARANTE QUE A SENHA TERÁ LETRAS DE a-z, de A-Z E 
     #NÚMEROS DE 1 A 9
-    regex=re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$')
+    regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$')
 
     #SE A SENHA NÃO SATISFIZER AS CONDIÇÕES DO REGEX, LEVANTA UM ERRO COM A MENSAGEM ABAIXO
     if not regex.match(password):
@@ -25,7 +25,7 @@ def strong_password(password):
             'one lowercase letter and one number. The length should be '
             'at least 8 characters.'
         ),
-        code='Invalid'
+            code='invalid'
         )
 
 class RegisterForm(forms.ModelForm):
@@ -35,12 +35,42 @@ class RegisterForm(forms.ModelForm):
         add_placeholder(self.fields['email'], 'Your e-mail')
         add_placeholder(self.fields['first_name'], 'Ex.: John')
         add_placeholder(self.fields['last_name'], 'Ex.: Doe')
-        add_placeholder(self.fields['password'], 'Ex.: Type your password')
-        add_placeholder(self.fields['password2'], 'Ex.: Repeat your password')
-        add_attr(self.fields['username'], 'css', 'a-css-class')
+        add_placeholder(self.fields['password'], 'Type your password')
+        add_placeholder(self.fields['password2'], 'Repeat your password')
+
+    #ESTA SOBREESCREVENDO O CAMPO FIRST_NAME DIZENDO QUE ELE É OBRIGATÓRIO, E 
+    #CASO NÃO ESTEJA PRESENTE, IRA LEVANTAR A SEGUINTE MENSAGEM DE ERRO.
+    #OUTROS IMPORTANTES CAMPOS QUE PODEM SER GERENCIADOS ATRAVÉS DO FORMS.CHARFIEL SÃO:
+    #label,help_text,error_messages... https://docs.djangoproject.com/en/4.0/ref/forms/fields/
+    username = forms.CharField(
+        label='Username',
+        help_text=(
+            'Username must have letters, numbers or one of those @.+-_. '
+            'The length should be between 4 and 150 characters.'
+        ),
+        error_messages={
+            'required': 'This field must not be empty',
+            'min_length': 'Username must have at least 4 characters',
+            'max_length': 'Username must have less than 150 characters',
+        },
+        min_length=4, max_length=150,
+    )
+    
+    first_name = forms.CharField(
+        error_messages={'required': 'Write your first name'},
+        label='First name'
+    )
+    last_name = forms.CharField(
+        error_messages={'required': 'Write your last name'},
+        label='Last name'
+    )
+    email = forms.EmailField(
+        error_messages={'required': 'E-mail is required'},
+        label='E-mail',
+        help_text='The e-mail must be valid.',
+    )
 
     password = forms.CharField(
-        required=True,
         widget=forms.PasswordInput(),
         error_messages={
             'required': 'Password must not be empty'
@@ -54,9 +84,11 @@ class RegisterForm(forms.ModelForm):
         label='Password'
     )
     password2 = forms.CharField(
-        required=True,
         widget=forms.PasswordInput(),
         label='Password2',
+        error_messages={
+            'required': 'Please, repeat your password'
+        },
     )
 
     class Meta:
@@ -68,23 +100,7 @@ class RegisterForm(forms.ModelForm):
             'email',
             'password',
         ]
-        # exclude = ['first_name']
-        labels = {
-            'username': 'Username',
-            'first_name': 'First name',
-            'last_name': 'Last name',
-            'email': 'E-mail',
-            'password': 'Password',
-        }
-        help_texts = {
-            'email': 'The e-mail must be valid.',
-        }
-        error_messages = {
-            'username': {
-                'required': 'This field must not be empty',
-            }
-        }
- 
+
     def clean(self):
         cleaned_data = super().clean()
 
