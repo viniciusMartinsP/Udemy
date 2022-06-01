@@ -1,33 +1,8 @@
-import re
-
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.urls import reverse
+from utils.django_forms import add_placeholder, strong_password
 
-
-def add_attr(field, attr_name, attr_new_val):
-    existing = field.widget.attrs.get(attr_name, '')
-    field.widget.attrs[attr_name] = f'{existing} {attr_new_val}'.strip()
-
-
-def add_placeholder(field, placeholder_val):
-    add_attr(field, 'placeholder', placeholder_val)
-
-def strong_password(password):
-    #ISTO É UMA EXPRESSÃO REGULAR E GARANTE QUE A SENHA TERÁ LETRAS DE a-z, de A-Z E 
-    #NÚMEROS DE 1 A 9
-    regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$')
-
-    #SE A SENHA NÃO SATISFIZER AS CONDIÇÕES DO REGEX, LEVANTA UM ERRO COM A MENSAGEM ABAIXO
-    if not regex.match(password):
-        raise ValidationError((
-            'Password must have at least one uppercase letter, '
-            'one lowercase letter and one number. The length should be '
-            'at least 8 characters.'
-        ),
-            code='invalid'
-        )
 
 class RegisterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -39,10 +14,6 @@ class RegisterForm(forms.ModelForm):
         add_placeholder(self.fields['password'], 'Type your password')
         add_placeholder(self.fields['password2'], 'Repeat your password')
 
-    #ESTA SOBREESCREVENDO O CAMPO FIRST_NAME DIZENDO QUE ELE É OBRIGATÓRIO, E 
-    #CASO NÃO ESTEJA PRESENTE, IRA LEVANTAR A SEGUINTE MENSAGEM DE ERRO.
-    #OUTROS IMPORTANTES CAMPOS QUE PODEM SER GERENCIADOS ATRAVÉS DO FORMS.CHARFIEL SÃO:
-    #label,help_text,error_messages... https://docs.djangoproject.com/en/4.0/ref/forms/fields/
     username = forms.CharField(
         label='Username',
         help_text=(
@@ -56,7 +27,6 @@ class RegisterForm(forms.ModelForm):
         },
         min_length=4, max_length=150,
     )
-    
     first_name = forms.CharField(
         error_messages={'required': 'Write your first name'},
         label='First name'
@@ -70,7 +40,6 @@ class RegisterForm(forms.ModelForm):
         label='E-mail',
         help_text='The e-mail must be valid.',
     )
-
     password = forms.CharField(
         widget=forms.PasswordInput(),
         error_messages={
@@ -103,8 +72,9 @@ class RegisterForm(forms.ModelForm):
         ]
 
     def clean_email(self):
-        email = self.cleaned_data.get('email','')
+        email = self.cleaned_data.get('email', '')
         exists = User.objects.filter(email=email).exists()
+
         if exists:
             raise ValidationError(
                 'User e-mail is already in use', code='invalid',
@@ -129,7 +99,3 @@ class RegisterForm(forms.ModelForm):
                     password_confirmation_error,
                 ],
             })
-
-
-
-    
