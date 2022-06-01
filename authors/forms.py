@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 
 def add_attr(field, attr_name, attr_new_val):
@@ -101,7 +102,6 @@ class RegisterForm(forms.ModelForm):
             'password',
         ]
 
-
     def clean_email(self):
         email = self.cleaned_data.get('email','')
         exists = User.objects.filter(email=email).exists()
@@ -129,3 +129,23 @@ class RegisterForm(forms.ModelForm):
                     password_confirmation_error,
                 ],
             })
+
+     
+            
+    def test_author_created_can_login(self):
+        url = reverse('authors:create')
+
+        self.form_data.update({
+            'username':'testuser',
+            'password':'@Bc123456',
+            'password2':'@Bc123456',
+        })
+
+        self.client.post(url, data=self.form_data, follow=True)
+
+        is_authenticated = self.client.login(
+            username = 'testuser',
+            password = '@Bc123456',
+        )
+
+        self.assertTrue(is_authenticated)
