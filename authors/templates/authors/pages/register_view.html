@@ -6,6 +6,11 @@
   <div class="main-content center container">
     <h2>Register</h2>
   </div>
+  {% if request.user.is_authenticated %}
+      <p>
+        Your are logged in with 
+        {{ request.user.username }}.
+  {% endif %}
 
   {% include 'global/partials/messages.html' %}
   {% include 'global/partials/form.html' %} 
