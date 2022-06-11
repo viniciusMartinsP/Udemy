@@ -329,6 +329,8 @@ h6 {
   color: var(--color-error-dark);
 }
 
+.form-content textarea, 
+.form-content select,
 .form-content input {
   width: 100%;
   padding: 1rem;
@@ -351,6 +353,10 @@ h6 {
 
 .inline-form{
   display: inline;
+}
+
+.span-2{
+  grid-column: span 2;
 }
 
 .plaintext-button{
@@ -418,10 +424,27 @@ h6 {
   margin: 1rem 0;
 }
 
+.authors-dashboard-container{
+  max-width: 64rem;
+  text-align: left;
+  padding: var(--spacing-gutter-medium);
+}
+
+.authors-dashboard-container h3,
+.authors-dashboard-container p,
+.authors-dashboard-container ul{
+  list-style-type: none;
+  margin: 1rem 0;
+}
+
 /* Generics */
 
 .center {
   text-align: center;
+}
+
+.left{
+  text-align: left;
 }
 
 .m-x {
@@ -441,62 +464,6 @@ h6 {
 
 #CUSTOMS
 
-.css-17vbg8s{
-  height: 30px;
-  size:10px;
-  display:-webkit-box;
-  display:-webkit-flex;
-  display:-ms-flexbox;
-  display:flex;
-  -webkit-flex-direction:row;
-  -ms-flex-direction:row;
-  flex-direction:row;
-  -webkit-align-items:center;
-  -webkit-box-align:center;
-  -ms-flex-align:center;
-  align-items:center;
-  -webkit-box-pack:center;
-  -ms-flex-pack:center;
-  -webkit-justify-content:center;
-  justify-content:center;
-  padding-left:0.75rem;
-  padding-right:0.75rem;
-  padding-top:0.75rem;
-  padding-bottom:0.75rem;
-  transition-property:background-color,border-color,color,fill,stroke;
-  transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration:100ms;
-  border-top-left-radius:0.25rem;
-  border-top-right-radius:0.25rem;
-  opacity:0.5;}
-  
-  .css-17vbg8s:hover{
-    opacity:1;
-  }
-  @media (min-width: 768px){
-   .css-17vbg8s{
-      padding-left:0.5rem;
-      padding-right:0.5rem;
-    }
-  }
-  .css-17vbg8s:hover{
-    background-color:rgba(0,0,0,.1);
-  }
-  .dark .css-17vbg8s:hover{
-    background-color:rgba(255,255,255,.2);
-  }
-
- 
-  .break {
-    flex-basis: 100%;
-    height: 0;
-  }
-  .navigation-social-medias{
-    clear: left;
-    float: left;
-  }
-  .link-without-decoration{
-    text-decoration: none;
-    clear: left;
-    float: left;
-  }
+.navigation-social-medias{
+  clear:left;
+}

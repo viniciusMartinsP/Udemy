@@ -1,6 +1,4 @@
 
-from time import sleep, time
-
 import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -25,7 +23,6 @@ class AuthorsLoginTest(AuthorsBaseTest):
         password_field.send_keys(string_password)
 
         form.submit()
-        sleep(3)
         self.assertIn(
             f'You are logged in with {user.username}',
             self.browser.find_element(By.TAG_NAME, 'body').text
