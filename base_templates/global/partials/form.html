@@ -1,5 +1,8 @@
 <div class="main-content container">
-    <form class="main-form" action="{{form_action}}" method="POST">
+    <!--
+    O enctype="multipart/form informa ao form que também irei trafegar arquivos no formulário
+    -->
+    <form class="main-form" action="{{form_action}}" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="form-content form-content-grid">
@@ -14,6 +17,12 @@
 
             {{ field.errors }}
           </div>
+
+          {% if field.name == 'cover' and field.value.url %}
+            <div class="span2">
+              <img src="{{field.value.url}}" alt="{{recipe.title}}" srcset="">
+            </div>
+          {% endif %}
         {% endfor %}
       </div>
 
