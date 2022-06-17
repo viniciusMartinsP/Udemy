@@ -81,7 +81,7 @@ def logout_view(request):
         messages.error(request, 'Invalid logout user')
         return redirect(reverse('authors:login'))
 
-    messages.success(request, 'Logged out successfuly')
+    messages.success(request, 'Logged out successfully')
     logout(request)
     return redirect(reverse('authors:login'))
 
@@ -90,10 +90,11 @@ def logout_view(request):
 def dashboard(request):
     recipes = Recipe.objects.filter(
         is_published=False,
-        author=request.user,
+        author=request.user
     )
     return render(
-        request, 'authors/pages/dashboard.html',
+        request,
+        'authors/pages/dashboard.html',
         context={
             'recipes': recipes,
         }
@@ -118,7 +119,7 @@ def dashboard_recipe_edit(request, id):
     )
 
     if form.is_valid():
-        # Agora o form é valido e posso tentar salvar o arquivo
+        # Agora, o form é válido e eu posso tentar salvar
         recipe = form.save(commit=False)
 
         recipe.author = request.user
@@ -126,6 +127,7 @@ def dashboard_recipe_edit(request, id):
         recipe.is_published = False
 
         recipe.save()
+
         messages.success(request, 'Sua receita foi salva com sucesso!')
         return redirect(reverse('authors:dashboard_recipe_edit', args=(id,)))
 

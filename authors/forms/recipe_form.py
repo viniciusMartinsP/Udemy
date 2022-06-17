@@ -10,9 +10,7 @@ from utils.strings import is_positive_number
 class AuthorRecipeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self._my_errors = defaultdict(list)
-
         add_attr(self.fields.get('preparation_steps'), 'class', 'span-2')
 
     class Meta:
