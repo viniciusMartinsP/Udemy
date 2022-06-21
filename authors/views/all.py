@@ -1,5 +1,4 @@
 from authors.forms import LoginForm, RegisterForm
-from authors.forms.recipe_form import AuthorRecipeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -98,23 +97,23 @@ def dashboard(request):
         }
     )
 
-@login_required(login_url='authors:login', redirect_field_name='next')
-def dashboard_recipe_delete(request):
-    if not request.POST:
-        raise Http404()
+# @login_required(login_url='authors:login', redirect_field_name='next')
+# def dashboard_recipe_delete(request):
+#     if not request.POST:
+#         raise Http404()
 
-    POST = request.POST
-    id = POST.get('id')
+#     POST = request.POST
+#     id = POST.get('id')
 
-    recipe = Recipe.objects.filter(
-        is_published=False,
-        author=request.user,
-        pk=id,
-    ).first()
+#     recipe = Recipe.objects.filter(
+#         is_published=False,
+#         author=request.user,
+#         pk=id,
+#     ).first()
 
-    if not recipe:
-        raise Http404()
+#     if not recipe:
+#         raise Http404()
 
-    recipe.delete()
-    messages.success(request, 'Your receipe has been deleted')
-    return redirect(reverse('authors:dashboard'))
+#     recipe.delete()
+#     messages.success(request, 'Your receipe has been deleted')
+#     return redirect(reverse('authors:dashboard'))
