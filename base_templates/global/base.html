@@ -1,9 +1,15 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     {% include 'global/partials/head.html' %}
     <title>{% block title %}{% endblock title %} Recipes</title>
+    <div class='icon-login'> 
+        <a href="http://127.0.0.1:8000/authors/dashboard/">
+            <img src="./media/icons/login-icon.jpg">
+        </a>
+    </div>
 </head>
 
 <body>
@@ -16,6 +22,7 @@
 
     </main>
     {% include 'global/partials/footer.html' %}
+    <script src= "{%static 'global/js/scripts.js' %}"></script>
 </body>
 
 </html>

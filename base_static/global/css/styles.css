@@ -475,3 +475,13 @@ a{
 .navigation-social-medias{
   clear:left;
 }
+
+.icon-bin{
+  height: 16px;
+}
+
+.icon-login img{
+  height: 70px;
+  float: right;
+  margin: 30px;
+}
