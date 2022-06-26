@@ -47,6 +47,6 @@ class AuthorLogoutTest(TestCase):
         )
 
         self.assertIn(
-            'Logged out successfuly',
+            'Logged out successfully',
             response.content.decode('utf-8')
         )

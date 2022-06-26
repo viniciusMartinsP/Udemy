@@ -1,4 +1,4 @@
-from time import sleep
+import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.by import By
@@ -15,11 +15,9 @@ class AuthorsBaseTest(StaticLiveServerTestCase):
         return super().tearDown()
 
     def sleep(self, qtd=10):
-        self.sleep()
-    
+        time.sleep(qtd)
+
     def get_by_placeholder(self, web_element, placeholder):
         return web_element.find_element(
             By.XPATH, f'//input[@placeholder="{placeholder}"]'
         )
-    
-
