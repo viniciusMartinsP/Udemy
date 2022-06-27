@@ -39,13 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     # A gente tem apps também
     'recipes',
     'authors',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,9 +147,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #FAZER IMPORTAÇÃO
 
 MESSAGE_TAGS = {
-    constants.DEBUG:'message-debug',
-    constants.ERROR:'message-error',
-    constants.SUCCESS:'message-success',
-    constants.INFO:'message-info',
-    constants.WARNING:'message-warning',
+    constants.DEBUG: 'message-debug',
+    constants.ERROR: 'message-error',
+    constants.SUCCESS: 'message-success',
+    constants.INFO: 'message-info',
+    constants.WARNING: 'message-warning',
 }
+
+# Django debug toolbar
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

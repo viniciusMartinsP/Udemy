@@ -1,6 +1,8 @@
 import os
 
 from django.db.models import Q
+from django.forms.models import model_to_dict
+from django.http import JsonResponse
 from django.http.response import Http404
 from django.views.generic import DetailView, ListView
 from utils.pagination import make_pagination
@@ -21,7 +23,11 @@ class RecipeListViewBase(ListView):
         qs = qs.filter(
             is_published=True,
         )
+
+        qs = qs.select_related('author', 'category')
         return qs
+
+
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
@@ -40,6 +46,21 @@ class RecipeListViewHome(RecipeListViewBase):
     template_name = 'recipes/pages/home.html'
 
 
+class RecipeListViewHomeApi(RecipeListViewBase):
+    template_name = 'recipes/pages/home.html'
+
+    def render_to_response(self, context, **response_kwargs):
+        recipes = self.get_context_data()['recipes']
+        queryset = recipes.object_list.values()
+        
+        # como a queryset é um objeto não "serialized", pega ela e joga dentro de um
+        # dicionário para que o JSON possa interpretar
+        return JsonResponse(
+            list(queryset),
+            safe = False
+        )
+
+
 class RecipeListViewCategory(RecipeListViewBase):
     template_name = 'recipes/pages/category.html'
 
@@ -47,6 +68,7 @@ class RecipeListViewCategory(RecipeListViewBase):
         ctx = super().get_context_data(*args, **kwargs)
 
         ctx.update({
+            # flake8:noqa
             'page_title': f'{ctx.get("recipes")[0].category.name} | Category | '
         })
 
@@ -112,3 +134,31 @@ class RecipeDetail(DetailView):
         })
 
         return ctx
+
+class RecipeDetailApi(RecipeDetail):
+    def render_to_response(self, context, **response_kwargs):
+        # estou puxando o MODEL DJANGO
+        recipe = self.get_context_data()['recipe']
+
+        # estou usando uma importação lá em cima que 
+        # permite transformar um model em um dict
+        recipe_dict = model_to_dict(recipe)
+
+        recipe_dict['created_at'] = str(recipe.created_at)
+        recipe_dict['updated_at'] = str(recipe.updated_at)
+
+        # caso ele encontre uma imagem, ao inves de converter a imagem para json
+        # ele vai retornar apenas a URL da imagem
+        if recipe_dict.get('cover'):
+            recipe_dict['cover'] = self.request.build_absolute_uri() + \
+            recipe_dict['cover'].url[1:]
+        else:
+            recipe_dict['cover'] = ''
+
+        del recipe_dict['is_published']
+        del recipe_dict['preparation_steps_is_html']
+
+        return JsonResponse(
+            recipe_dict,
+            safe=False
+        )
