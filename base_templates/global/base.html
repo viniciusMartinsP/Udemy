@@ -5,11 +5,6 @@
 <head>
     {% include 'global/partials/head.html' %}
     <title>{% block title %}{% endblock title %} Recipes</title>
-    <div class='icon-login'> 
-        <a href="http://127.0.0.1:8000/authors/dashboard/">
-            <img src="./media/icons/login-icon.jpg">
-        </a>
-    </div>
 </head>
 
 <body>
@@ -17,12 +12,13 @@
     {% include 'global/partials/search.html' %}
 
     <main class="main-content-container">
-        {% block content %}{% endblock content %}        
+        {% block content %}{% endblock content %}
         {% include 'global/partials/pagination.html' %}
-
     </main>
+
     {% include 'global/partials/footer.html' %}
-    <script src= "{%static 'global/js/scripts.js' %}"></script>
+
+    <script src="{% static 'global/js/scripts.js' %}"></script>
 </body>
 
 </html>
