@@ -107,14 +107,14 @@ class RecipeListViewSearch(RecipeListViewBase):
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-        page_title = Tag.objects.get(slug=self.kwargs.get('slug',''))
+        page_title = Tag.objects.filter(slug=self.kwargs.get('slug',''))
 
         if not page_title:
             page_title = 'No recipes found'
 
         page_title = f'{page_title} - TAG'
         ctx.update({
-            'page_title': f'Search for "{page_title}"',
+            'page_title': f'{page_title}',
         })
         return ctx
 
