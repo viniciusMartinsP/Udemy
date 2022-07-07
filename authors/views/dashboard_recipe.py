@@ -1,5 +1,3 @@
-from unicodedata import name
-
 from authors.forms.recipe_form import AuthorRecipeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
