@@ -5,7 +5,8 @@ from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.http.response import Http404
 from django.shortcuts import render
-from django.views import View
+from django.utils import translation
+from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView
 from tag.models import Tag
 from utils.pagination import make_pagination
@@ -13,6 +14,7 @@ from utils.pagination import make_pagination
 from recipes.models import Recipe
 
 PER_PAGE = int(os.environ.get('PER_PAGE', 6))
+
 
 class RecipeListViewBase(ListView):
     model = Recipe
@@ -37,8 +39,14 @@ class RecipeListViewBase(ListView):
             ctx.get('recipes'),
             PER_PAGE
         )
+        html_language = translation.get_language()
+
         ctx.update(
-            {'recipes': page_obj, 'pagination_range': pagination_range}
+            {
+                'recipes': page_obj,
+                'pagination_range': pagination_range,
+                'html_language': html_language,
+            }
         )
         return ctx
 
@@ -53,12 +61,12 @@ class RecipeListViewHomeApi(RecipeListViewBase):
     def render_to_response(self, context, **response_kwargs):
         recipes = self.get_context_data()['recipes']
         queryset = recipes.object_list.values()
-        
-        # como a queryset é um objeto não "serialized", pega ela e joga dentro de um
-        # dicionário para que o JSON possa interpretar
+
+        # como a queryset é um objeto não "serialized", pega ela e
+        # joga dentro de um dicionário para que o JSON possa interpretar
         return JsonResponse(
             list(queryset),
-            safe = False
+            safe=False
         )
 
 
@@ -67,10 +75,10 @@ class RecipeListViewCategory(RecipeListViewBase):
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-
+        category_translation = _('Category')
         ctx.update({
-            # flake8:noqa
-            'page_title': f'{ctx.get("recipes")[0].category.name} | Category | '
+            'page_title': f'{ctx.get("recipes")[0].category.name} - '
+            f'{category_translation} | '
         })
 
         return ctx
@@ -107,7 +115,7 @@ class RecipeListViewSearch(RecipeListViewBase):
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-        page_title = Tag.objects.filter(slug=self.kwargs.get('slug',''))
+        page_title = Tag.objects.filter(slug=self.kwargs.get('slug', ''))
 
         if not page_title:
             page_title = 'No recipes found'
@@ -118,17 +126,20 @@ class RecipeListViewSearch(RecipeListViewBase):
         })
         return ctx
 
+
 class RecipeListViewTag(RecipeListViewBase):
     template_name = 'recipes/pages/tag.html'
-    
+
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(tags__slug=self.kwargs.get('slug',''))
+        qs = qs.filter(tags__slug=self.kwargs.get('slug', ''))
         return qs
 
     def get_context_data(self, *args, **kwargs):
         ctx = super().get_context_data(*args, **kwargs)
-        page_title = str(Tag.objects.get(slug=self.kwargs.get('slug',''))).capitalize()
+        page_title = str(Tag.objects.get(
+            slug=self.kwargs.get('slug', ''))
+        ).capitalize()
         ctx.update({
             'page_title': f'{page_title} | Tag',
         })
@@ -154,23 +165,25 @@ class RecipeDetail(DetailView):
 
         return ctx
 
+
 class RecipeDetailApi(RecipeDetail):
     def render_to_response(self, context, **response_kwargs):
         # estou puxando o MODEL DJANGO
         recipe = self.get_context_data()['recipe']
 
-        # estou usando uma importação lá em cima que 
+        # estou usando uma importação lá em cima que
         # permite transformar um model em um dict
         recipe_dict = model_to_dict(recipe)
 
         recipe_dict['created_at'] = str(recipe.created_at)
         recipe_dict['updated_at'] = str(recipe.updated_at)
 
-        # caso ele encontre uma imagem, ao inves de converter a imagem para json
-        # ele vai retornar apenas a URL da imagem
+        # caso ele encontre uma imagem, ao inves de converter a imagem para
+        # json ele vai retornar apenas a URL da imagem
         if recipe_dict.get('cover'):
             recipe_dict['cover'] = self.request.build_absolute_uri() + \
-            recipe_dict['cover'].url[1:]
+                recipe_dict['cover'].url[1:]
+
         else:
             recipe_dict['cover'] = ''
 
@@ -188,6 +201,7 @@ def theory(request, *args, **kwargs):
         request,
         'recipes/pages/theory.html'
     )
+
 
 class TheoryCBV(RecipeListViewBase):
     template_name = 'recipes/pages/theorycbv.html'

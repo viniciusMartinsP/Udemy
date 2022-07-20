@@ -1,13 +1,15 @@
+import os
 from collections import defaultdict
 from datetime import date
-from turtle import title
-from xml.dom import ValidationErr
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.forms import ValidationError
 from django.urls import reverse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+from PIL import Image
 from tag.models import Tag
 
 
@@ -19,20 +21,26 @@ class Category(models.Model):
 
 
 class Recipe(models.Model):
-    title = models.CharField(max_length=65)
-    description = models.CharField(max_length=165)
+    title = models.CharField(max_length=65, verbose_name=_('Title'))
+    description = models.CharField(
+        max_length=165, verbose_name=_('Description')
+    )
     slug = models.SlugField(unique=True)
-    preparation_time = models.IntegerField()
-    preparation_time_unit = models.CharField(max_length=65)
-    servings = models.IntegerField()
-    servings_unit = models.CharField(max_length=65)
-    preparation_steps = models.TextField()
+    preparation_time = models.IntegerField(verbose_name=_('Preparation Time'))
+    preparation_time_unit = models.CharField(
+        max_length=65, verbose_name=_('Units of preparation time')
+    )
+    servings = models.IntegerField(verbose_name=_('Amount'))
+    servings_unit = models.CharField(max_length=65, verbose_name=_('Portions'))
+    preparation_steps = models.TextField(verbose_name=_('Step-by-step'))
     preparation_steps_is_html = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=False)
     cover = models.ImageField(
-        upload_to='recipes/covers/%Y/%m/%d/', blank=True, default='')
+        upload_to='recipes/covers/%Y/%m/%d/', blank=True,
+        default='', verbose_name=_('Picture')
+    )
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True, blank=True,
         default=None,
@@ -48,12 +56,38 @@ class Recipe(models.Model):
     def get_absolute_url(self):
         return reverse("recipes:recipe", args=(self.id,))
 
+    @staticmethod
+    def resize_image(image, new_width=800):
+        image_full_path = os.path.join(settings.MEDIA_ROOT, image.name)
+        image_pillow = Image.open(image_full_path)
+        original_width, original_height = image_pillow.size
+
+        if original_width < new_width:
+            image_pillow.close()
+            return
+
+        new_height = round(new_width*original_height)/original_width
+        new_image = image_pillow.resize((new_width, new_height), Image.LANCZOS)
+        new_image.save(
+            image_full_path,
+            optimize=True,
+            quality=59,
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             data = str(date.today())
             slug = f'{slugify(self.title)+"-"+(data)}'
             self.slug = slug
-        return super().save(*args, **kwargs)
+
+        saved = super().save(*args, **kwargs)
+
+        if self.cover:
+            try:
+                self.resize_image(self.cover, 800)
+            except FileNotFoundError:
+                ...
+        return saved
 
     def clean(self, *args, **kwargs):
         error_messages = defaultdict(list)
@@ -61,7 +95,7 @@ class Recipe(models.Model):
             title__iexact=self.title
         ).first()
 
-        # VERIFICA SE A PRIMARY KEY É DIFERENTE DA QUE JÁ ESTÁ 
+        # VERIFICA SE A PRIMARY KEY É DIFERENTE DA QUE JÁ ESTÁ
         # EM USO, PARA PODER PERMITIR EDIÇÕES
         if recipe_from_db:
             if recipe_from_db.pk != self.pk:
@@ -72,3 +106,7 @@ class Recipe(models.Model):
         if error_messages:
             raise ValidationError(error_messages)
         return super().clean()
+
+    class Meta:
+        verbose_name = _('Recipe')
+        verbose_name_plural = _('Recipes')
